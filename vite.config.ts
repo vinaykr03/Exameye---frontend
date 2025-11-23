@@ -56,7 +56,14 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: process.env.BUILD_OUT_DIR || 'dist',
       rollupOptions: {
-        input: htmlFile,
+        input: {
+          main: htmlFile
+        },
+        output: {
+          entryFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]'
+        }
       },
     },
 
