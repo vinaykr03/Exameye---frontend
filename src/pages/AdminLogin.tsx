@@ -127,7 +127,7 @@ const AdminLogin = () => {
               full_name: trimmedName,
               display_name: trimmedName,
             },
-            emailRedirectTo: window.location.origin + "/",
+            emailRedirectTo: window.location.origin + "/login",
           },
         });
 
@@ -188,7 +188,7 @@ const AdminLogin = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "azure",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/login`,
           scopes: "openid profile email",
           queryParams: {
             prompt: "login",

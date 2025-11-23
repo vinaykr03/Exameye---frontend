@@ -22,10 +22,11 @@ const AdminApp = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Admin Homepage */}
+          <Route path="/" element={<AdminHomepage />} />
+          
           {/* Admin Routes */}
-          <Route path="/" element={<AdminLogin />} />
           <Route path="/login" element={<AdminLogin />} />
-          <Route path="/home" element={<AdminHomepage />} />
           <Route path="/dashboard" element={<AdminDashboard />} />
           <Route path="/subjects" element={<AdminSubjects />} />
           <Route path="/monitor" element={<AdminMonitor />} />
