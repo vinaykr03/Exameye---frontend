@@ -33,9 +33,12 @@ After deployment, you'll have:
    - Connect your Git repository
 
 3. **Configure Build Settings**
+   - **Base directory**: `Exameye-Shield-frontend--main` (if your frontend is in a subdirectory)
    - **Build command**: `npm run build:all`
    - **Publish directory**: `dist`
    - **Node version**: `18` or `20` (set in Environment variables if needed)
+   
+   **Note**: If your repository root contains both frontend and backend folders, you MUST set the **Base directory** to `Exameye-Shield-frontend--main` so Netlify knows where to find `package.json` and run the build command.
 
 4. **Deploy**
    - Click "Deploy site"
