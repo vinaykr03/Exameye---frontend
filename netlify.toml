@@ -1,5 +1,7 @@
 [build]
   # Build command that builds both student and admin apps
+  # Note: If your repo is frontend-only, leave base directory empty in Netlify UI
+  # If your repo has frontend in a subdirectory, set base = "Exameye-Shield-frontend--main" in Netlify UI
   command = "npm run build:all"
   # Publish directory - we'll use a combined dist folder
   publish = "dist"
