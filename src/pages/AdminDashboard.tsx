@@ -92,12 +92,27 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    const isAuthenticated = sessionStorage.getItem('adminAuth');
-    if (!isAuthenticated) {
-      toast.error("Please login as admin");
-      navigate('/login');
-      return;
-    }
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const isAuthenticated = sessionStorage.getItem('adminAuth') || session;
+      
+      if (!isAuthenticated) {
+        toast.error("Please login as admin");
+        navigate('/');
+        return;
+      }
+      
+      // Set session storage if we have a session but it's not set
+      if (session && !sessionStorage.getItem('adminAuth')) {
+        sessionStorage.setItem('adminAuth', 'true');
+        const adminName = session.user?.user_metadata?.name || 
+                         session.user?.user_metadata?.full_name || 
+                         session.user?.email || 'Admin';
+        sessionStorage.setItem('adminName', adminName);
+      }
+    };
+    
+    checkAuth();
 
     loadDashboardData();
 
