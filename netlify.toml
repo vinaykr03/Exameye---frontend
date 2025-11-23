@@ -5,6 +5,8 @@
   command = "npm run build:all"
   # Publish directory - we'll use a combined dist folder
   publish = "dist"
+  # Node version (Netlify will use .nvmrc if present, or this setting)
+  environment = { NODE_VERSION = "20" }
 
 # Redirect rules for path-based routing
 # IMPORTANT: Order matters! More specific routes must come first
