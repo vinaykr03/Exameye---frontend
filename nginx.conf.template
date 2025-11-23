@@ -5,13 +5,14 @@ server {
     index student.html admin.html;
 
     # Admin routes - serve admin.html for /admin and /admin/* paths
-    # Prefix matching: /admin matches before /, so this takes precedence
-    location /admin {
+    # CRITICAL: Order matters! More specific routes must come first
+    # Use regex to match /admin and /admin/* (most flexible)
+    location ~ ^/admin(/.*)?$ {
         try_files $uri $uri/ /admin.html;
     }
 
     # Student routes - serve student.html for /student and /student/* paths
-    location /student {
+    location ~ ^/student(/.*)?$ {
         try_files $uri $uri/ /student.html;
     }
 

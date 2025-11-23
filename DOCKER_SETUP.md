@@ -1,11 +1,11 @@
 # Frontend Docker Setup
 
-This Dockerfile creates a production-ready container that serves both the **Student** and **Admin** applications from a single container using path-based routing.
+This Dockerfile creates a production-ready container that serves both the **Student** and **Admin** applications from a single container using path-based routing. It supports **dynamic ports** for platforms like Railway, Render, Fly.io, and Heroku.
 
 ## Build Stages
 
 1. **Builder Stage**: Uses Node.js 20 to install dependencies and build both Vite apps (student and admin)
-2. **Production Stage**: Uses nginx Alpine to serve the static files efficiently with path-based routing
+2. **Production Stage**: Uses nginx Alpine to serve the static files efficiently with path-based routing and dynamic PORT support
 
 ## Building the Docker Image
 
@@ -34,6 +34,12 @@ Both apps will be available:
 ### Run with Custom Port
 ```bash
 docker run -p 8080:80 exameye-frontend
+```
+
+### Run with Dynamic PORT (Simulating Railway/Render)
+```bash
+# Simulate platforms that use dynamic PORT environment variable
+docker run -p 3000:3000 -e PORT=3000 exameye-frontend
 ```
 
 ### Run in Background (Detached)
@@ -88,23 +94,45 @@ services:
 
 ## Deployment Platforms
 
-### Railway
+### Railway ✅
 - Railway will automatically detect and use the Dockerfile
-- No additional configuration needed
+- **Dynamic PORT Support**: ✅ Automatically configured
+- The Dockerfile uses `nginx.conf.template` and `docker-entrypoint.sh` to handle Railway's dynamic PORT
 - Make sure to set environment variables in Railway dashboard
+- **See**: `RAILWAY_DOCKER_SETUP.md` for detailed Railway deployment guide
 
-### Render
+### Render ✅
 - Select "Docker" as the environment
 - Point to the Dockerfile location
+- **Dynamic PORT Support**: ✅ Automatically configured
+- **Admin Routing**: Fixed - uses regex location blocks for proper `/admin` routing
 - Set environment variables in Render dashboard
+- **See**: `RENDER_TROUBLESHOOTING.md` for admin page routing fix
 
-### Northflank
+### Fly.io ✅
+- Uses Dockerfile automatically
+- **Dynamic PORT Support**: ✅ Automatically configured
+- Set environment variables in Fly.io dashboard
+
+### Heroku ✅
+- Uses Dockerfile via Container Registry
+- **Dynamic PORT Support**: ✅ Automatically configured
+- Set environment variables in Heroku dashboard
+
+### Northflank ✅
 - Select "Dockerfile" build method
+- **Dynamic PORT Support**: ✅ Automatically configured
 - Set environment variables in the service configuration
+
+### DigitalOcean App Platform ✅
+- Uses Dockerfile automatically
+- **Dynamic PORT Support**: ✅ Automatically configured
+- Set environment variables in App Platform dashboard
 
 ### Vercel
 - Vercel doesn't use Dockerfiles for frontend deployments
 - Use Vercel's native build system instead (recommended for frontend)
+- **See**: `VERCEL_MULTIPLE_WEBSITES.md` for Vercel deployment guide
 
 ## Environment Variables at Build Time
 
@@ -156,11 +184,20 @@ chmod +x build-docker.sh
 - Verify environment variables are set correctly
 - Ensure the build completed successfully
 
-### Routing Issues (404 on refresh)
+### Routing Issues (404 on refresh or admin page shows student page)
 - The nginx config includes SPA routing support (`try_files`) for both apps
 - Student routes (`/` and `/student/*`) serve `student.html`
-- Admin routes (`/admin/*`) serve `admin.html`
-- If issues persist, check the `nginx.conf` file
+- Admin routes (`/admin` and `/admin/*`) serve `admin.html` using regex location blocks
+- **Admin Page Fix**: Updated to use `location ~ ^/admin(/.*)?$` for proper routing
+- If issues persist, check the `nginx.conf.template` file
+- **For Render**: See `RENDER_TROUBLESHOOTING.md` for admin routing troubleshooting
+
+### Dynamic PORT Issues
+- The Dockerfile uses `nginx.conf.template` and `docker-entrypoint.sh` to handle dynamic PORT
+- If nginx fails to start, check that `PORT` environment variable is set
+- Defaults to port 80 if `PORT` is not set
+- Verify `docker-entrypoint.sh` has execute permissions
+- Check logs for "Starting nginx on port [PORT]" message
 
 ### Port Already in Use
 - Change the host port: `docker run -p 8080:80 exameye-frontend`
@@ -175,12 +212,28 @@ The Dockerfile uses `npm run build:all` which:
 3. Merges both builds into a single `dist` folder
 4. Ensures both `student.html` and `admin.html` are present
 
+### Dynamic PORT Support
+The Dockerfile includes:
+1. **`nginx.conf.template`**: Template file with `${PORT}` placeholder
+2. **`docker-entrypoint.sh`**: Script that substitutes PORT at runtime using `envsubst`
+3. **`gettext` package**: Provides `envsubst` command for environment variable substitution
+
+**How it works:**
+- At container startup, `docker-entrypoint.sh` runs
+- It reads the `PORT` environment variable (defaults to 80 if not set)
+- Substitutes `${PORT}` in `nginx.conf.template` to create final nginx config
+- Starts nginx on the specified port
+
 ### Routing Configuration
-The `nginx.conf` file configures:
+The `nginx.conf.template` file configures:
 - **Root path (`/`)**: Serves `student.html` (student portal)
-- **`/admin/*` paths**: Serves `admin.html` (admin portal)
-- **`/student/*` paths**: Serves `student.html` (student portal)
-- **SPA fallbacks**: Handles client-side routing for both apps
+- **`/admin` and `/admin/*` paths**: Serves `admin.html` (admin portal) using regex `location ~ ^/admin(/.*)?$`
+- **`/student` and `/student/*` paths**: Serves `student.html` (student portal) using regex `location ~ ^/student(/.*)?$`
+- **SPA fallbacks**: Handles client-side routing for both apps with `try_files`
+
+**Admin Routing Fix:**
+- Uses regex location blocks to properly match `/admin`, `/admin/`, and `/admin/*` paths
+- Ensures admin page loads correctly on platforms like Render
 
 ### File Structure After Build
 ```
@@ -198,8 +251,23 @@ dist/
 
 The current setup uses:
 - **Builder stage**: ~500MB (Node.js + dependencies)
-- **Production stage**: ~25MB (nginx Alpine)
-- **Final image**: ~25MB (only production stage is included)
+- **Production stage**: ~30MB (nginx Alpine + gettext for envsubst)
+- **Final image**: ~30MB (only production stage is included)
 
 This is already optimized using multi-stage builds!
+
+## Key Files
+
+- **`Dockerfile`**: Multi-stage build configuration
+- **`nginx.conf.template`**: Nginx configuration template with `${PORT}` placeholder
+- **`docker-entrypoint.sh`**: Entrypoint script that handles PORT substitution
+- **`scripts/build-all.js`**: Build script that creates both student.html and admin.html
+- **`nginx.conf`**: Static nginx config (for local development, not used in Docker)
+
+## Platform-Specific Guides
+
+- **Railway**: See `RAILWAY_DOCKER_SETUP.md`
+- **Render**: See `RENDER_TROUBLESHOOTING.md`
+- **Vercel**: See `VERCEL_MULTIPLE_WEBSITES.md`
+- **Dynamic Ports**: See `DYNAMIC_PORT_PLATFORMS.md` for list of platforms
 
