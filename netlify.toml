@@ -1,7 +1,7 @@
 [build]
-  command = "npm run build:admin"
+  command = "npm run build:student"
   publish = "dist"
-  environment = { NODE_VERSION = "20", VITE_APP_TYPE = "admin" }
+  environment = { NODE_VERSION = "20", VITE_APP_TYPE = "student" }
 
 [[redirects]]
   from = "/*"
