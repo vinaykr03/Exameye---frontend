@@ -127,7 +127,7 @@ const AdminLogin = () => {
               full_name: trimmedName,
               display_name: trimmedName,
             },
-            emailRedirectTo: "https://delicate-nougat-52208e.netlify.app/",
+            emailRedirectTo: window.location.origin + "/dashboard",
           },
         });
 
@@ -188,7 +188,7 @@ const AdminLogin = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "azure",
         options: {
-          redirectTo: `https://delicate-nougat-52208e.netlify.app/`,
+          redirectTo: window.location.origin + "/dashboard",
           scopes: "openid profile email",
           queryParams: {
             prompt: "login",
