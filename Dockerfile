@@ -35,15 +35,25 @@ RUN npm run build:all
 # Production stage
 FROM nginx:alpine
 
+# Install envsubst for environment variable substitution
+RUN apk add --no-cache gettext
+
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration for both apps with path-based routing
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Create nginx templates directory
+RUN mkdir -p /etc/nginx/templates
 
-# Expose port 80
+# Copy nginx configuration template (will use Railway's PORT env var)
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Expose port (Railway will set PORT env var dynamically)
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Use entrypoint script to handle PORT substitution
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
