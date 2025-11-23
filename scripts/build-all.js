@@ -85,19 +85,40 @@ if (fs.existsSync(adminTempDir)) {
 const studentHtmlPath = path.join(distDir, 'student.html');
 const adminHtmlPath = path.join(distDir, 'admin.html');
 
+console.log('\n📋 Verifying build output...');
+
 if (!fs.existsSync(studentHtmlPath)) {
-  console.error('Error: student.html not found in build output');
+  console.error('❌ Error: student.html not found in build output');
+  console.error(`   Expected at: ${studentHtmlPath}`);
   process.exit(1);
+} else {
+  console.log('✓ student.html found');
 }
 
 if (!fs.existsSync(adminHtmlPath)) {
-  console.error('Error: admin.html not found in build output');
+  console.error('❌ Error: admin.html not found in build output');
+  console.error(`   Expected at: ${adminHtmlPath}`);
   process.exit(1);
+} else {
+  console.log('✓ admin.html found');
 }
 
-console.log('✓ Build complete! Both apps are ready in dist/');
-console.log('  - Student app: student.html');
-console.log('  - Admin app: admin.html');
+// List all files in dist for debugging
+console.log('\n📁 Files in dist directory:');
+const distFiles = fs.readdirSync(distDir);
+distFiles.forEach(file => {
+  const filePath = path.join(distDir, file);
+  const stats = fs.statSync(filePath);
+  const type = stats.isDirectory() ? '📁' : '📄';
+  console.log(`   ${type} ${file}`);
+});
+
+console.log('\n✅ Build complete! Both apps are ready in dist/');
+console.log('   - Student app: student.html');
+console.log('   - Admin app: admin.html');
+console.log('\n💡 Deploy URLs:');
+console.log('   - Student: https://your-site.netlify.app/');
+console.log('   - Admin: https://your-site.netlify.app/admin');
 
 function copyRecursiveSync(src, dest) {
   const exists = fs.existsSync(src);

@@ -5,43 +5,45 @@
   publish = "dist"
 
 # Redirect rules for path-based routing
+# IMPORTANT: Order matters! More specific routes must come first
+
+# Admin routes - exact match for /admin
 [[redirects]]
-  # Admin routes - serve admin.html for /admin/* paths
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+  force = false
+
+# Admin routes - serve admin.html for /admin/* paths (must come before catch-all)
+[[redirects]]
   from = "/admin/*"
   to = "/admin.html"
   status = 200
   force = false
 
+# Student routes - exact match for /student
 [[redirects]]
-  # Student routes - serve student.html for root and /student/* paths
+  from = "/student"
+  to = "/student.html"
+  status = 200
+  force = false
+
+# Student routes - serve student.html for /student/* paths
+[[redirects]]
   from = "/student/*"
   to = "/student.html"
   status = 200
   force = false
 
+# Root path serves student app
 [[redirects]]
-  # Root path serves student app
   from = "/"
   to = "/student.html"
   status = 200
   force = false
 
-# SPA fallback - for client-side routing
-[[redirects]]
-  # Catch all for admin SPA routes
-  from = "/admin"
-  to = "/admin.html"
-  status = 200
-
-[[redirects]]
-  # Catch all for student SPA routes (already handled by root, but explicit)
-  from = "/student"
-  to = "/student.html"
-  status = 200
-
 # Final catch-all for SPA routing - must be last
-# This handles any routes that don't match the above patterns
-# Since /admin/* is matched above, this will only catch non-admin routes
+# This handles any other routes (serves student.html as default)
 [[redirects]]
   from = "/*"
   to = "/student.html"
