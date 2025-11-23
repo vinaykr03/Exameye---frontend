@@ -127,7 +127,7 @@ const AdminLogin = () => {
               full_name: trimmedName,
               display_name: trimmedName,
             },
-            emailRedirectTo: window.location.origin + "/dashboard",
+            emailRedirectTo: "https://exameye-admin-portal.netlify.app/dashboard",
           },
         });
 
@@ -188,7 +188,7 @@ const AdminLogin = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "azure",
         options: {
-          redirectTo: window.location.origin + "/dashboard",
+          redirectTo: "https://exameye-admin-portal.netlify.app/dashboard",
           scopes: "openid profile email",
           queryParams: {
             prompt: "login",
